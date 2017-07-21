@@ -1,0 +1,57 @@
+#!/bin/bash
+
+DOCKER_IMAGE="nrmc_img"
+CONTAINER_ID="nrmc_con"
+BASE_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Parse arguments
+while [[ $# > 0 ]]; do
+    key="$1"
+
+    case $key in
+        # Build the image
+        -b|--build)    
+            cp -R ~/.ssh $BASE_PATH
+            docker build -t $DOCKER_IMAGE .
+            rm -rf $BASE_PATH/.ssh
+        ;;
+
+        # Make a fresh container
+        -f|--fresh)    
+            printf "\nFreaky fresh ros coming up!\n\n" 
+            printf "Removing:    "
+            docker rm $CONTAINER_ID
+            printf "New long id: "
+            docker create -it --name=$CONTAINER_ID \
+                              --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+                              $DOCKER_IMAGE \
+                              bash
+        ;;
+
+        # Start the container
+        -s|--start)
+            xhost +local:`docker inspect --format='{{ .Config.Hostname }}' $CONTAINER_ID` # Allow X permissions
+            docker start -i $CONTAINER_ID
+            xhost -local:root   # Remove X permissions on shutdown
+        ;;
+
+        # Display help
+        -h|--help)
+            echo "-b, --build   | build the nrmcros docker image"
+            echo "-f, --fresh   | remove current container and create a new one"
+            echo "-s, --start   | start ros-kinetic container with X sharing"
+            echo "-h, --help    | display help"
+            exit
+        ;;
+        
+        # Take care of invalid options
+        *)
+            echo "Invalid option... be more careful"
+            exit
+        ;;
+    esac
+
+    shift # past argument or value
+done
+
+

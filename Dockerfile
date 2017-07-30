@@ -20,9 +20,17 @@ RUN apt-get update && apt-get install -y \
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
     apt-get install -y git-lfs
 COPY .gitconfig /root/.gitconfig
+
+
+# Configure ssh
 ADD /.ssh /root/.ssh
 RUN eval "$(ssh-agent -s)" && \
     ssh-add /root/.ssh/id_rsa
+
+
+# Configure clion
+ADD /pkgs/clion-settings.tar.gz /root
+ADD /pkgs/clion-java-settings.tar.gz /root
 
 
 # Clone NRMC repo, install dependencies, make it, and link custom vrep library to vrep

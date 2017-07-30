@@ -15,6 +15,13 @@ while [[ $# > 0 ]]; do
             docker build -t $DOCKER_IMAGE .
             rm -rf $BASE_PATH/.ssh
         ;;
+        
+        # Build the image with no cache (refresh NRMC repo)
+        -n|--ncbuild)    
+            cp -R ~/.ssh $BASE_PATH
+            docker build --no-cache -t $DOCKER_IMAGE .
+            rm -rf $BASE_PATH/.ssh
+        ;;
 
         # Make a fresh container
         -f|--fresh)    
@@ -24,8 +31,10 @@ while [[ $# > 0 ]]; do
             printf "New long id: "
             docker create -it --name=$CONTAINER_ID \
                               --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+                              --volume="$BASE_PATH/host:/root/host:z" \
+                              --volume="$HOME/tools/clion:/root/clion:ro" \
                               $DOCKER_IMAGE \
-                              bash
+                              tmux
         ;;
 
         # Start the container
@@ -37,10 +46,11 @@ while [[ $# > 0 ]]; do
 
         # Display help
         -h|--help)
-            echo "-b, --build   | build the nrmcros docker image"
-            echo "-f, --fresh   | remove current container and create a new one"
-            echo "-s, --start   | start ros-kinetic container with X sharing"
-            echo "-h, --help    | display help"
+            echo "-b, --build    | build the nrmcros docker image"
+            echo "-n, --nc-build | build the nrmcros docker image with no cache (refresh NRMC repo)"
+            echo "-f, --fresh    | remove current container and create a new one"
+            echo "-s, --start    | start ros-kinetic container with X sharing"
+            echo "-h, --help     | display help"
             exit
         ;;
         

@@ -66,7 +66,7 @@ RUN . /opt/ros/kinetic/setup.sh && \
     cd /root/NRMC2018 && \
     catkin_make
 
-RUN ln -s /root/NRMC2018/devel/lib/libv_repExtRosSkeleton.so /root/vrep/
+RUN ln -s /root/NRMC2018/devel/lib/libv_repExtRosInterface.so /root/vrep/
 
 
 # Configure display

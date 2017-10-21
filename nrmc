@@ -31,8 +31,9 @@ while [[ $# > 0 ]]; do
             printf "New long id: "
             docker create -it --name=$CONTAINER_ID \
                               --volume="/tmp/.X11-unix:/tmp/.X11-unix:rw" \
+			      --volume="/dev/dri:/dev/dri:z" \
                               --volume="$BASE_PATH/host:/root/host:z" \
-                              --volume="$HOME/tools/clion:/root/clion:ro" \
+                              --volume="$HOME/tools/clion:/root/clion:z" \
                               $DOCKER_IMAGE \
                               tmux
         ;;

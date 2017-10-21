@@ -32,17 +32,35 @@ RUN eval "$(ssh-agent -s)" && \
 ADD /pkgs/clion-settings.tar.gz /root
 ADD /pkgs/clion-java-settings.tar.gz /root
 
+# Clone scripts directory (contains clion formatting settings)
+RUN cd /root && \
+    git clone git@github.com:jacobhuesman/scripts.git
+
+# Install gmock
+RUN apt-get update && apt-get install -y google-mock
+
+# Build gmock
+RUN cd /usr/src/gmock && \
+    mkdir build && \
+    cd build && \
+    cmake ../ && \
+    make
+
+# Install clang
+RUN apt-get update && apt-get install -y clang-format-3.6
 
 # Clone NRMC repo, install dependencies, make it, and link custom vrep library to vrep
 RUN cd /root && \
     git clone git@github.com:BisonRobotics/NRMC2018.git && \
     cd NRMC2018 && \
-    git checkout vrep
+    git checkout vrep && \
+    git submodule update --init --recursive
 
 RUN . /opt/ros/kinetic/setup.sh && \
     cd /root/NRMC2018 && \
     rosdep update && \
-    rosdep install --from-paths . --ignore-src --rosdistro=kinetic --default-yes
+    rosdep install --from-paths . --ignore-src --rosdistro=kinetic --default-yes; exit 0
+
 
 RUN . /opt/ros/kinetic/setup.sh && \
     cd /root/NRMC2018 && \
